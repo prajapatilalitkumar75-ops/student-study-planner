@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple student study planner built with Flask and MySQL.">
+  <title>StudySpace — Student Planner</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="StudySpace home">
+        <span class="brand-mark">S</span>
+        <span>StudySpace</span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <button class="nav-item active" id="allTasksNav" type="button"><span>▦</span> All study tasks</button>
+      <div class="sidebar-tip">
+        <div class="tip-icon">✦</div>
+        <strong>Small steps add up.</strong>
+        <p>One focused task at a time. Keep going!</p>
+      </div>
+      <div class="sidebar-bottom">Your personal study planner</div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">YOUR STUDY WORKSPACE</p>
+          <h1>Good things take focus<span class="heading-dot">.</span></h1>
+          <p class="subheading">Plan your work, make progress, and celebrate each win.</p>
+        </div>
+        <div class="today-pill"><span class="online-dot"></span><span id="todayLabel">Today</span></div>
+      </header>
+
+      <section class="stats-grid" aria-label="Task statistics">
+        <article class="stat-card">
+          <div class="stat-top"><span>Total tasks</span><span class="stat-icon purple">▤</span></div>
+          <div class="stat-number" id="totalCount">0</div>
+          <div class="stat-foot">Everything on your list</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span>Pending</span><span class="stat-icon amber">◷</span></div>
+          <div class="stat-number" id="pendingCount">0</div>
+          <div class="stat-foot">Ready for your attention</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span>Completed</span><span class="stat-icon green">✓</span></div>
+          <div class="stat-number" id="completedCount">0</div>
+          <div class="stat-foot">Look how far you've come</div>
+        </article>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel task-panel">
+          
+<div class="panel-heading">
+  <div>
+    <p class="eyebrow">STAY ON TRACK</p>
+    <h2>Your study tasks</h2>
+  </div>
+  <label class="filter-wrap">
+    <span class="sr-only">Filter by status</span>
+    <select id="filterSelect">
+      <option value="all">All tasks</option>
+      <option value="pending">Pending</option>
+      <option value="completed">Completed</option>
+    </select>
+  </label>
+</div>
+
+<div class="task-filters">
+  <input
+    type="search"
+    id="searchInput"
+    placeholder="Search tasks or subjects..."
+    aria-label="Search tasks or subjects"
+  >
+
+  <select id="subjectFilter" aria-label="Filter by subject">
+    <option value="all">All subjects</option>
+  </select>
+
+  <select id="priorityFilter" aria-label="Filter by priority">
+    <option value="all">All priorities</option>
+    <option value="Low">Low priority</option>
+    <option value="Medium">Medium priority</option>
+    <option value="High">High priority</option>
+  </select>
+</div>
+
+          <div class="progress-section">
+            <div class="progress-copy"><span>Overall progress</span><strong id="progressText">0%</strong></div>
+            <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
+          </div>
+          <div id="taskList" class="task-list" aria-live="polite">
+            <div class="loading-state">Loading your tasks…</div>
+          </div>
+        </section>
+
+        <aside class="panel form-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">MAKE A PLAN</p>
+              <h2 id="formTitle">Add a task</h2>
+            </div>
+            <span class="form-spark">✦</span>
+          </div>
+          <p class="form-intro">Break your study goals into manageable steps.</p>
+          <form id="taskForm">
+            <label for="title">Task name <span class="required">*</span></label>
+            <input id="title" name="title" type="text" maxlength="160" placeholder="e.g. Revise probability" required>
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" type="text" maxlength="100" placeholder="e.g. Mathematics">
+            <div class="form-row">
+              <div>
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div>
+                <label for="dueDate">Due date</label>
+                <input id="dueDate" name="due_date" type="date">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="saveButton" type="submit">＋ Add task</button>
+              <button class="btn btn-light hidden" id="cancelEdit" type="button">Cancel</button>
+            </div>
+            <p id="formMessage" class="form-message" role="status"></p>
+          </form>
+          <div class="focus-note"><span>✧</span><p><strong>Study tip</strong><br>Choose one important task and give it your full attention.</p></div>
+        </aside>
+      </section>
+      <footer>Made for focused learning <span>♥</span></footer>
+      
+<section class="panel timetable-panel" id="weeklyTimetable">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">PLAN YOUR WEEK</p>
+      <h2>Weekly Study Timetable</h2>
+    </div>
+    <span class="form-spark">▦</span>
+  </div>
+
+  <p class="form-intro">
+    Organize your study sessions from Monday to Sunday.
+  </p>
+
+  <form id="sessionForm">
+    <label for="sessionDay">Day</label>
+    <select id="sessionDay" required>
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+      <option value="Saturday">Saturday</option>
+      <option value="Sunday">Sunday</option>
+    </select>
+
+    <label for="sessionSubject">Subject *</label>
+    <input id="sessionSubject" type="text" maxlength="100"
+      placeholder="e.g. Mathematics" required>
+
+    <label for="sessionTopic">Topic</label>
+    <input id="sessionTopic" type="text" maxlength="160"
+      placeholder="e.g. Probability">
+
+    <div class="form-row">
+      <div>
+        <label for="sessionStart">Start time *</label>
+        <input id="sessionStart" type="time" required>
+      </div>
+      <div>
+        <label for="sessionEnd">End time *</label>
+        <input id="sessionEnd" type="time" required>
+      </div>
+    </div>
+
+    <label for="sessionNotes">Notes</label>
+    <input id="sessionNotes" type="text" maxlength="500"
+      placeholder="Optional notes">
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="sessionSaveButton" type="submit">
+        + Add study session
+      </button>
+    </div>
+
+    <p id="sessionMessage" class="form-message" role="status"></p>
+  </form>
+
+  <div class="timetable-list">
+    <h3>My weekly schedule</h3>
+    <div id="sessionList" aria-live="polite">
+      <div class="loading-state">Loading timetable…</div>
+    </div>
+  </div>
+  </section>
+    </main>
+  </div>
+</body>
+</html>
